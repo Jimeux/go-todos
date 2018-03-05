@@ -1,33 +1,41 @@
-package article
+package todo
 
 import (
-	"io/ioutil"
-	"net/http"
-	"net/http/httptest"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"testing"
-	"encoding/json"
 	"gin-test/common"
+	"net/http/httptest"
+	"io/ioutil"
 	"strings"
+	"net/http"
+	"encoding/json"
 )
 
-// TODO: Desperately need a mocking library
-type MockArticleRepository struct{}
-
+type MockArticleRepository struct{ mock.Mock }
 func (m *MockArticleRepository) Create(title string, content string) (*Model, error) {
-	return &Model{1, "Create title", "Create content"}, nil
+	args := m.Called(title, content)
+	return args.Get(0).(*Model), args.Error(1)
 }
 func (m *MockArticleRepository) FindAll() (*[]Model, error) {
-	return &[]Model{
-		{1, "FindAll title", "FindAll content"},
-	}, nil
+	args := m.Called()
+	return args.Get(0).(*[]Model), args.Error(1)
 }
 func (m *MockArticleRepository) FindById(id int64) (*Model, bool, error) {
-	return &Model{1, "FindById title", "FindById content"}, true, nil
+	args := m.Called(id)
+	return args.Get(0).(*Model), args.Bool(1), args.Error(2)
 }
 
-var handler = Handler{&MockArticleRepository{}}
-
 func TestIndex(t *testing.T) {
+	repo := new(MockArticleRepository)
+	repo.On("FindAll").Return(
+		&[]Model{
+			{1, "FindAll title", "FindAll content"},
+		},
+		nil,
+	)
+	var handler = Handler{repo}
+
 	r := common.GetRouter(true)
 	r.GET("/", handler.Index)
 	req, _ := http.NewRequest("GET", "/", nil)
@@ -41,6 +49,11 @@ func TestIndex(t *testing.T) {
 }
 
 func TestShow(t *testing.T) {
+	model := Model{1, "FindById title", "FindById content"}
+	repo := new(MockArticleRepository)
+	repo.On("FindById", int64(1)).Return(&model, true, nil)
+	var handler = Handler{repo}
+
 	r := common.GetRouter(true)
 	r.GET("/article/:id", handler.Show)
 	req, _ := http.NewRequest("GET", "/article/1", nil)
@@ -54,6 +67,15 @@ func TestShow(t *testing.T) {
 }
 
 func TestArticleListJSON(t *testing.T) {
+	repo := new(MockArticleRepository)
+	repo.On("FindAll").Return(
+		&[]Model{
+			{1, "FindAll title", "FindAll content"},
+		},
+		nil,
+	)
+	var handler = Handler{repo}
+
 	r := common.GetRouter(false)
 	r.GET("/", handler.Index)
 

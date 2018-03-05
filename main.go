@@ -1,41 +1,55 @@
 package main
 
 import (
+	_ "github.com/lib/pq"
 	"github.com/gin-gonic/gin"
 	"github.com/go-xorm/xorm"
-	_ "github.com/lib/pq"
 	"runtime"
-	"gin-test/article"
+	"gin-test/todo"
+	"os"
 )
 
-const driverName = "postgres"
-const dataSourceName = "postgres://localhost:5432/xorm_test?sslmode=disable"
-
 var (
-	db = initDb()
-	articleRepository = article.NewRepository(db)
-	articleHandler = article.NewHandler(articleRepository)
-	router = gin.Default()
+	db             = initDb()
+	todoRepository = todo.NewRepository(db)
+	todoHandler    = todo.NewHandler(todoRepository)
+	router         = gin.Default()
 )
 
 func initDb() *xorm.Engine {
-	db, err := xorm.NewEngine(driverName, dataSourceName)
+	const driverName = "postgres"
+	dataSourceName := os.Getenv("DATABASE_URL")
 
-	db.Sync2(new(article.Model))
-
-	if err != nil {
-		panic("couldn't connect to database: \n" + err.Error())
-	} else {
-		return db
+	if len(dataSourceName) == 0 {
+		dataSourceName = "postgres://localhost:5432/gin_todos?sslmode=disable"
 	}
+
+	db, err := xorm.NewEngine(driverName, dataSourceName)
+	err2 := db.Sync2(new(todo.Model))
+
+	if err2 != nil {
+		panic("couldn't sync todos table: \n" + err2.Error())
+	}
+	if err != nil {
+		panic("error initialising xorm engine: \n" + err.Error())
+	}
+
+	return db
 }
 
 func main() {
 	runtime.GOMAXPROCS(2)
 
-	router.LoadHTMLGlob("views/*")
+	viewDir := os.Getenv("VIEW_DIR")
 
-	initializeRoutes(&articleHandler)
+	if len(viewDir) == 0 {
+		viewDir = "views"
+	}
+
+	router.LoadHTMLGlob(viewDir + "/*")
+	router.Static("/assets", "./assets")
+
+	initializeRoutes(&todoHandler)
 
 	router.Run()
 }

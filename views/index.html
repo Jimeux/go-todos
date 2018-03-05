@@ -1,12 +1,22 @@
 {{ template "header.html" .}}
 
-<h1>{{.title}}</h1>
+<div class="container todo-list-component">
 
-{{range .payload }}
-<a href="/article/{{.Id}}">
-  <h2>{{.Title}}</h2>
-</a>
-<p>{{.Content}}</p>
-{{end}}
+  <h1>{{.title}}</h1>
+
+  <div class="input-group mb-3">
+    <input id="add-input" type="text" class="form-control" placeholder="Enter a task">
+    <div class="input-group-append">
+      <button id="add-btn" class="btn btn-primary" type="button">Add</button>
+    </div>
+  </div>
+
+  <div class="input-group mb-3">
+    <button id="hide-complete-btn" class="btn btn-primary btn-sm"></button>
+  </div>
+
+  <ul class="list-group"></ul>
+
+</div>
 
 {{ template "footer.html" .}}
