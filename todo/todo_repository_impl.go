@@ -5,15 +5,15 @@ import (
 	"time"
 )
 
-type XormRepository struct {
+type RepositoryImpl struct {
 	db *xorm.Engine
 }
 
 func NewRepository(db *xorm.Engine) Repository {
-	return &XormRepository{db}
+	return &RepositoryImpl{db}
 }
 
-func (r *XormRepository) Create(title string) (*Model, error) {
+func (r *RepositoryImpl) Create(title string) (*Model, error) {
 	todo := Model{
 		Title:    title,
 		Complete: false,
@@ -23,35 +23,30 @@ func (r *XormRepository) Create(title string) (*Model, error) {
 	return &todo, err
 }
 
-func (r *XormRepository) SetComplete(id int64, complete bool) (int64, error) {
+func (r *RepositoryImpl) SetComplete(id int64, complete bool) (int64, error) {
 	return r.db.
 		Id(id).
 		Cols("complete").
 		Update(&Model{Complete: complete})
 }
 
-func (r *XormRepository) FindAll(hideComplete bool) (*[]Model, error) {
+func (r *RepositoryImpl) FindAll(hideComplete bool) (*[]Model, error) {
 	var todos []Model
-	var err error
+	var query string
 
 	if hideComplete {
-		err = r.db.Where("complete = false").
-			Desc("created").
-			Find(&todos)
-	} else {
-		err = r.db.Desc("created").
-			Find(&todos)
+		query = "complete = false"
 	}
+
+	err := r.db.
+		Where(query).
+		Desc("created").
+		Find(&todos)
+
 	return &todos, err
 }
 
-func (r *XormRepository) FindById(id int64) (*Model, error) {
-	todo := Model{Id: id}
-	_, err := r.db.Get(&todo)
-	return &todo, err
-}
-
-func (r *XormRepository) Delete(id int64) error {
+func (r *RepositoryImpl) Delete(id int64) error {
 	todo := Model{Id: id}
 	_, err := r.db.Delete(&todo)
 	return err

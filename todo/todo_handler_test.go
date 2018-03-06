@@ -1,97 +1,110 @@
 package todo
 
 import (
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"testing"
 	"gin-test/common"
 	"net/http/httptest"
 	"io/ioutil"
-	"strings"
 	"net/http"
 	"encoding/json"
+	"time"
+	"github.com/stretchr/testify/assert"
+	"errors"
 )
 
-type MockArticleRepository struct{ mock.Mock }
-func (m *MockArticleRepository) Create(title string, content string) (*Model, error) {
-	args := m.Called(title, content)
-	return args.Get(0).(*Model), args.Error(1)
-}
-func (m *MockArticleRepository) FindAll() (*[]Model, error) {
-	args := m.Called()
-	return args.Get(0).(*[]Model), args.Error(1)
-}
-func (m *MockArticleRepository) FindById(id int64) (*Model, bool, error) {
-	args := m.Called(id)
-	return args.Get(0).(*Model), args.Bool(1), args.Error(2)
-}
-
 func TestIndex(t *testing.T) {
-	repo := new(MockArticleRepository)
-	repo.On("FindAll").Return(
-		&[]Model{
-			{1, "FindAll title", "FindAll content"},
-		},
-		nil,
-	)
-	var handler = Handler{repo}
+	var handler = Handler{TestRepository{}}
+	router := common.GetRouter(true)
+	router.GET("/", handler.Index)
+	request, _ := http.NewRequest("GET", "/", nil)
+	recorder := httptest.NewRecorder()
 
-	r := common.GetRouter(true)
-	r.GET("/", handler.Index)
-	req, _ := http.NewRequest("GET", "/", nil)
+	router.ServeHTTP(recorder, request)
+	body, _ := ioutil.ReadAll(recorder.Body)
 
-	common.RunTestHTTPResponse(t, r, req, func(w *httptest.ResponseRecorder) bool {
-		statusOK := w.Code == http.StatusOK
-		p, err := ioutil.ReadAll(w.Body)
-		pageOK := err == nil && strings.Index(string(p), "<title>Articles</title>") > 0
-		return statusOK && pageOK
-	})
+	assert.Contains(t, string(body),"<title>Todo</title>")
+	assert.Equal(t, http.StatusOK, recorder.Code)
 }
 
-func TestShow(t *testing.T) {
-	model := Model{1, "FindById title", "FindById content"}
-	repo := new(MockArticleRepository)
-	repo.On("FindById", int64(1)).Return(&model, true, nil)
-	var handler = Handler{repo}
+func TestListValidDefault(t *testing.T) {
+	todoList := []Model{{1, "A todo 1", false, time.Now()}}
+	var handler = Handler{TestRepository{TodoList: &todoList}}
+	router := common.GetRouter(false)
+	router.GET("/todo", handler.List)
+	request, _ := http.NewRequest("GET", "/todo", nil)
+	recorder := httptest.NewRecorder()
 
-	r := common.GetRouter(true)
-	r.GET("/article/:id", handler.Show)
-	req, _ := http.NewRequest("GET", "/article/1", nil)
+	router.ServeHTTP(recorder, request)
 
-	common.RunTestHTTPResponse(t, r, req, func(w *httptest.ResponseRecorder) bool {
-		statusOK := w.Code == http.StatusOK
-		p, err := ioutil.ReadAll(w.Body)
-		pageOK := err == nil && strings.Index(string(p), "<title>FindById title</title>") > 0
-		return statusOK && pageOK
-	})
+	js, _ := ioutil.ReadAll(recorder.Body)
+	var todos []Model
+	json.Unmarshal(js, &todos)
+
+	assert.Equal(t, http.StatusOK, recorder.Code)
+	assert.Equal(t, len(todoList), len(todos))
 }
 
-func TestArticleListJSON(t *testing.T) {
-	repo := new(MockArticleRepository)
-	repo.On("FindAll").Return(
-		&[]Model{
-			{1, "FindAll title", "FindAll content"},
-		},
-		nil,
-	)
-	var handler = Handler{repo}
+func TestListValidWithoutComplete(t *testing.T) {
+	var handler = Handler{TestRepository{}}
+	router := common.GetRouter(false)
+	router.GET("/todo", handler.List)
+	request, _ := http.NewRequest("GET", "/todo", nil)
+	recorder := httptest.NewRecorder()
 
-	r := common.GetRouter(false)
-	r.GET("/", handler.Index)
+	q := request.URL.Query()
+	q.Add(HideCompleteParam, "true")
+	request.URL.RawQuery = q.Encode()
 
-	req, _ := http.NewRequest("GET", "/", nil)
-	req.Header.Add("Accept", "application/json")
+	router.ServeHTTP(recorder, request)
 
-	common.RunTestHTTPResponse(t, r, req, func(w *httptest.ResponseRecorder) bool {
-		statusOK := w.Code == http.StatusOK
+	assert.Equal(t, http.StatusOK, recorder.Code)
+}
 
-		p, err := ioutil.ReadAll(w.Body)
-		if err != nil {
-			return false
-		}
-		var articles []Model
-		err = json.Unmarshal(p, &articles)
+func TestListParseError(t *testing.T) {
+	var handler = Handler{TestRepository{}}
+	router := common.GetRouter(false)
+	router.GET("/todo", handler.List)
+	request, _ := http.NewRequest("GET", "/todo", nil)
 
-		return err == nil && len(articles) >= 1 && statusOK
-	})
+	q := request.URL.Query()
+	q.Add(HideCompleteParam, "oops")
+	request.URL.RawQuery = q.Encode()
+
+	recorder := httptest.NewRecorder()
+	router.ServeHTTP(recorder, request)
+
+	assert.Equal(t, http.StatusNotAcceptable, recorder.Code)
+}
+
+func TestListRepoError(t *testing.T) {
+	var handler = Handler{TestRepository{Error: errors.New("oops")}}
+	router := common.GetRouter(false)
+	router.GET("/todo", handler.List)
+	request, _ := http.NewRequest("GET", "/todo", nil)
+
+	recorder := httptest.NewRecorder()
+	router.ServeHTTP(recorder, request)
+
+	assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+}
+
+
+type TestRepository struct {
+	Todo         *Model
+	TodoList     *[]Model
+	SetCompleted int64
+	Error        error
+}
+
+func (t TestRepository) Create(title string) (*Model, error) {
+	return t.Todo, t.Error
+}
+func (t TestRepository) FindAll(hideCompleted bool) (*[]Model, error) {
+	return t.TodoList, t.Error
+}
+func (t TestRepository) SetComplete(id int64, complete bool) (int64, error) {
+	return t.SetCompleted, t.Error
+}
+func (t TestRepository) Delete(id int64) error {
+	return t.Error
 }

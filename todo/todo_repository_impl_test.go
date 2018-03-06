@@ -7,21 +7,8 @@ import (
 
 var (
 	db = common.InitTestDb()
-	repository = &XormRepository{db}
+	repository = &RepositoryImpl{db}
 )
-
-func TestFindById(t *testing.T) {
-	db.Exec("DROP TABLE articles")
-	db.Sync2(new(Model))
-
-	inserted, _ := repository.Create("test", "content")
-
-	article, exists, _ := repository.FindById(inserted.Id)
-
-	check(t, exists, "article not found")
-	check(t, article.Title == inserted.Title, "Title not equal", article.Title, inserted.Title)
-	check(t, article.Content == inserted.Content, "Content not equal", article.Content, inserted.Content)
-}
 
 func TestFindAll(t *testing.T) {
 	db.Exec("DROP TABLE articles")
@@ -29,11 +16,11 @@ func TestFindAll(t *testing.T) {
 
 	var inserts = make([]Model, 5)
 	for i := 1; i <= 5; i++  {
-		inserted, _ := repository.Create("test" + string(i), "content" + string(i))
+		inserted, _ := repository.Create("test" + string(i))
 		inserts = append(inserts, *inserted)
 	}
 
-	articles, _ := repository.FindAll()
+	articles, _ := repository.FindAll(false)
 
 	var contains = func(article *Model) bool {
 		for _, a := range inserts {
