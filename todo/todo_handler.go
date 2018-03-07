@@ -49,6 +49,8 @@ func (h *Handler) Complete(context *gin.Context) {
 	id, paramErr := strconv.Atoi(context.Param(IdParam))
 	completed, queryErr := parseBool(context, CompleteParam, false)
 
+	fmt.Println(completed, queryErr)
+
 	if paramErr != nil || queryErr != nil {
 		context.AbortWithStatus(http.StatusNotAcceptable)
 	} else {
@@ -83,5 +85,8 @@ func (h *Handler) Create(context *gin.Context) {
 func parseBool(context *gin.Context, key string, defaultValue bool) (bool, error) {
 	boolString := strconv.FormatBool(defaultValue)
 	value := context.DefaultQuery(key, boolString)
+
+	fmt.Println(key)
+
 	return strconv.ParseBool(value)
 }

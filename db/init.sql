@@ -1,6 +1,3 @@
-CREATE ROLE deployer LOGIN PASSWORD 'pass';
-CREATE DATABASE gin_test;
-GRANT ALL PRIVILEGES ON DATABASE gin_test TO deployer;
 
 CREATE TABLE IF NOT EXISTS todos (
   id SERIAL,
@@ -8,3 +5,6 @@ CREATE TABLE IF NOT EXISTS todos (
   complete BOOLEAN NOT NULL DEFAULT FALSE,
   created TIMESTAMP NOT NULL DEFAULT NOW()
 );
+
+INSERT INTO todos (title) VALUES ('Create lots of bugs');
+INSERT INTO todos (title) VALUES ('Fix lots of bugs');

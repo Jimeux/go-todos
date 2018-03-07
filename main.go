@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-xorm/xorm"
 	"runtime"
-	"gin-test/todo"
+	"gin-todos/todo"
 	"os"
 )
 
@@ -21,7 +21,7 @@ func initDb() *xorm.Engine {
 	dataSourceName := os.Getenv("DATABASE_URL")
 
 	if len(dataSourceName) == 0 {
-		dataSourceName = "postgres://localhost:5432/gin_todos?sslmode=disable"
+		dataSourceName = "postgres://localhost:5433/gin_todos?user=default&password=default&sslmode=disable"
 	}
 
 	db, err := xorm.NewEngine(driverName, dataSourceName)

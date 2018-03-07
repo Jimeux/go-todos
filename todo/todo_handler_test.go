@@ -2,7 +2,7 @@ package todo
 
 import (
 	"testing"
-	"gin-test/common"
+	"gin-todos/common"
 	"net/http/httptest"
 	"io/ioutil"
 	"net/http"
