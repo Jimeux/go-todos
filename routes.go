@@ -1,8 +1,6 @@
 package main
 
-import (
-	"gin-test/todo"
-)
+import "gin-test/todo"
 
 func initializeRoutes(handler* todo.Handler) {
 

@@ -4,6 +4,7 @@ $(() => {
 
 });
 
+
 class TodoListComponent {
 
   constructor(todoService) {
@@ -13,22 +14,27 @@ class TodoListComponent {
     this.todoList = $(".list-group");
     this.hideCompleteBtn = $("#hide-complete-btn");
     this.hideComplete = localStorage.getItem("hideComplete") === "true";
-    this.updateHideCompleteBtn();
 
+    this.updateHideCompleteBtn();
+    this.attachListeners();
+
+    this.todoService.findAll(this.hideComplete, todos => {
+      todos.forEach(todo => this.addTodoToDOM(todo, false, false))
+    });
+  }
+
+  attachListeners() {
     this.addBtn.click(() => this.createTodo());
     this.todoList.on("click", ".form-check-input", event =>
       this.completeTodo($(event.target))
     );
-    this.todoService.findAll(this.hideComplete, todos => {
-      todos.forEach(todo => this.addTodoToDOM(todo, false, false))
-    });
     this.hideCompleteBtn.click(() => {
       this.todoService.findAll(!this.hideComplete, todos => {
         this.toggleHideComplete();
         this.todoList.empty();
         todos.forEach(todo => this.addTodoToDOM(todo, false, false));
       });
-    })
+    });
   }
 
   toggleHideComplete() {
