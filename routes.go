@@ -1,8 +1,11 @@
 package main
 
-import "gin-todos/todo"
+import (
+	"gin-todos/todo"
+	"github.com/gin-gonic/gin"
+)
 
-func initializeRoutes(handler* todo.Handler) {
+func initializeRoutes(router *gin.Engine, handler* todo.Handler) {
 
 	router.GET("/", handler.Index)
 

@@ -4,7 +4,7 @@ FROM golang
 
 ENV GIN_MODE=release
 ENV VIEW_DIR=/go/src/gin-todos/views
-ENV DATABASE_URL="postgres://localhost:5433/gin_todos?user=default&password=default&sslmode=disable"
+ENV DATABASE_URL="postgresql://127.0.0.1:5433/gin_todos?user=default&password=default&sslmode=disable"
 
 # Copy the local package files to the container's workspace.
 ADD . /go/src/gin-todos/

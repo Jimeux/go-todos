@@ -7,34 +7,35 @@ import (
 	"runtime"
 	"gin-todos/todo"
 	"os"
+	"time"
+	"fmt"
 )
 
-var (
-	db             = initDb()
-	todoRepository = todo.NewRepository(db)
-	todoHandler    = todo.NewHandler(todoRepository)
-	router         = gin.Default()
-)
-
-func initDb() *xorm.Engine {
+func initDb() (*xorm.Engine, error) {
 	const driverName = "postgres"
 	dataSourceName := os.Getenv("DATABASE_URL")
 
 	if len(dataSourceName) == 0 {
-		dataSourceName = "postgres://localhost:5433/gin_todos?user=default&password=default&sslmode=disable"
+		dataSourceName = "postgresql://127.0.0.1:5433/gin_todos?user=default&password=default&sslmode=disable"
 	}
 
-	db, err := xorm.NewEngine(driverName, dataSourceName)
-	err2 := db.Sync2(new(todo.Model))
+	fmt.Println(dataSourceName)
 
-	if err2 != nil {
-		panic("couldn't sync todos table: \n" + err2.Error())
-	}
-	if err != nil {
-		panic("error initialising xorm engine: \n" + err.Error())
+	db, engineErr := xorm.NewEngine(driverName, dataSourceName)
+
+	if engineErr != nil {
+		fmt.Println("error initialising xorm engine: \n" + engineErr.Error())
+		return nil, engineErr
 	}
 
-	return db
+	syncErr := db.Sync2(new(todo.Model))
+
+	if syncErr != nil {
+		fmt.Println("couldn't sync todos table: \n" + syncErr.Error())
+		return nil, syncErr
+	}
+
+	return db, nil
 }
 
 func main() {
@@ -46,10 +47,26 @@ func main() {
 		viewDir = "views"
 	}
 
+	var db *xorm.Engine
+
+	for i := 1; i <= 10; i++ {
+		dbTry, err := initDb()
+		if err == nil {
+			db = dbTry
+			break
+		} else {
+			time.Sleep(time.Duration(i) * time.Second)
+		}
+	}
+
+	todoRepository := todo.NewRepository(db)
+	todoHandler := todo.NewHandler(todoRepository)
+	router := gin.Default()
+
 	router.LoadHTMLGlob(viewDir + "/*")
 	router.Static("/assets", "./assets")
 
-	initializeRoutes(&todoHandler)
+	initializeRoutes(router, &todoHandler)
 
 	router.Run()
 }
