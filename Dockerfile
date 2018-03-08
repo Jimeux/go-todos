@@ -4,6 +4,7 @@ FROM golang
 
 ENV GIN_MODE=release
 ENV VIEW_DIR=/go/src/gin-todos/views
+ENV ASSETS_DIR=/go/src/gin-todos/assets
 
 # Copy the local package files to the container's workspace.
 ADD . /go/src/gin-todos/
@@ -17,6 +18,4 @@ RUN go get github.com/go-xorm/xorm
 RUN go install gin-todos
 
 # Run the app
-#ENTRYPOINT /go/bin/gin-todos
-
-#EXPOSE 8080
+ENTRYPOINT /go/bin/gin-todos

@@ -45,9 +45,13 @@ func main() {
 	runtime.GOMAXPROCS(2)
 
 	viewDir := os.Getenv("VIEW_DIR")
+	assetsDir := os.Getenv("ASSETS_DIR")
 
 	if len(viewDir) == 0 {
 		viewDir = "views"
+	}
+	if len(assetsDir) == 0 {
+		assetsDir = "assets"
 	}
 
 	var db *xorm.Engine
@@ -67,7 +71,7 @@ func main() {
 	router := gin.Default()
 
 	router.LoadHTMLGlob(viewDir + "/*")
-	router.Static("/assets", "./assets")
+	router.Static("/assets", assetsDir)
 
 	initializeRoutes(router, &todoHandler)
 
