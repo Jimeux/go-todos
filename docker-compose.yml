@@ -1,24 +1,28 @@
 version: '3'
 services:
-  db:
+  postgres:
     image: postgres
     ports:
-      - 5433:5432
+      - 127.0.0.1:5433:5432
     environment:
-      - POSTGRES_DB=gin_todos
       - POSTGRES_USER=default
       - POSTGRES_PASSWORD=default
     volumes:
       - ./db/tmp/db:/var/lib/postgresql/data
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
-  web:
-    build: .
-    command: /go/bin/gin-todos
-    volumes:
-      - .:/gin-todos
-    ports:
-      - "3000:8080"
-    links:
-      - db
-    depends_on:
-      - db
+#  web:
+#    build: .
+#    command: /go/bin/gin-todos
+#    volumes:
+#      - .:/gin-todos
+#    ports:
+#      - "3000:8080"
+#    links:
+#      - postgres
+#    depends_on:
+#      - postgres
+#    environment:
+#      - DB_HOST=postgres
+#      - DB_USER=default
+#      - DB_PASS=default
+#      - DB_NAME=gin_todos

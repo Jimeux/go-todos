@@ -15,10 +15,13 @@ func initDb() (*xorm.Engine, error) {
 	const driverName = "postgres"
 	dataSourceName := os.Getenv("DATABASE_URL")
 
-	if len(dataSourceName) == 0 {
-		dataSourceName = "postgresql://127.0.0.1:5433/gin_todos?user=default&password=default&sslmode=disable"
+	databaseHost := os.Getenv("DB_HOST")
+
+	if len(databaseHost) == 0 {
+		databaseHost = "127.0.0.1:5433"
 	}
 
+	dataSourceName = "postgresql://default:default@" + databaseHost + "/gin_todos?sslmode=disable"
 	fmt.Println(dataSourceName)
 
 	db, engineErr := xorm.NewEngine(driverName, dataSourceName)
