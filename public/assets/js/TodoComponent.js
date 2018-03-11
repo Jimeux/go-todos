@@ -58,12 +58,13 @@ class TodoListComponent {
     const id = checkbox.data("id");
     const container = checkbox.closest("li");
 
-    this.todoService.updateCompleted(id, checked, () => {
-      container.toggleClass("list-group-item-primary", checked);
-      container.find("a").toggleClass("complete", checked);
-      if (this.hideComplete)
-        container.slideUp();
-    });
+    container.toggleClass("list-group-item-primary", checked);
+    container.find("a").toggleClass("complete", checked);
+    if (this.hideComplete)
+      container.slideUp();
+
+    this.todoService.updateCompleted(id, checked)
+      .fail(err => {/* Todo: Reverse UI changes */});
   }
 
   createTodo() {

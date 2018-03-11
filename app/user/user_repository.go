@@ -7,12 +7,12 @@ type Repository interface {
 	FindByCredentials(username string, password string) (*Model, error)
 }
 
-type RepositoryImpl struct {
-	db *xorm.Engine
-}
-
 func NewRepository(db *xorm.Engine) Repository {
 	return &RepositoryImpl{db}
+}
+
+type RepositoryImpl struct {
+	db *xorm.Engine
 }
 
 func (r *RepositoryImpl) Create(username string, password string) (*Model, error) {

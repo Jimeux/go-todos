@@ -46,7 +46,7 @@ class AuthService {
   }
 
   isAuthenticated() {
-    return this.getToken() !== null;
+    return this.getToken() !== "null";
   }
 
 }

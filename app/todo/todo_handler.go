@@ -7,10 +7,12 @@ import (
 	"gin-todos/app/user"
 )
 
-const IdParam = "id"
-const TitleParam = "title"
-const CompleteParam = "complete"
-const HideCompleteParam = "hide_complete"
+const (
+	IdParam           = "id"
+	TitleParam        = "title"
+	CompleteParam     = "complete"
+	HideCompleteParam = "hide_complete"
+)
 
 type Handler struct {
 	repository Repository

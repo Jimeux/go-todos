@@ -6,12 +6,15 @@ import (
 	"gin-todos/app/user"
 )
 
-const UsernameParam = "username"
-const PasswordParam = "password"
+const (
+	UsernameParam = "username"
+	PasswordParam = "password"
+	TokenHeader   = "X-Auth-Token"
+)
 
 type Handler struct {
 	userRepository user.Repository
-	authService Service
+	authService    Service
 }
 
 func NewHandler(userRepository user.Repository, authService Service) Handler {
@@ -25,7 +28,7 @@ func (h *Handler) Login(context *gin.Context) {
 }
 
 func (h *Handler) Logout(context *gin.Context) {
-	token := context.Request.Header.Get("X-Auth-Token")
+	token := context.Request.Header.Get(TokenHeader)
 	err := h.authService.RevokeToken(token)
 	if err != nil {
 		context.AbortWithStatus(http.StatusInternalServerError)

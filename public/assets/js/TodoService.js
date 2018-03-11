@@ -10,10 +10,9 @@ class TodoService {
       .done(callback);
   }
 
-  updateCompleted(id, complete, callback) {
+  updateCompleted(id, complete) {
     return this.authRequest(`/todo/${id}/complete`, "GET", {complete})
-      .fail(TodoService.handleError)
-      .done(callback);
+      .fail(TodoService.handleError);
   }
 
   findAll(hideComplete, callback) {

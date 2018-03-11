@@ -1,0 +1,22 @@
+version: '3'
+services:
+
+  web:
+    build: .
+    restart: always
+    ports:
+      - 8080:8080
+    links:
+      - postgres
+      - redis
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=${REDIS_PORT}
+      - DB_HOST=postgres
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_NAME=${DB_NAME}
+      - DB_PORT=${DB_PORT}

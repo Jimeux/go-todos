@@ -2,9 +2,9 @@ package auth
 
 import (
 	"gin-todos/app/user"
-	"github.com/garyburd/redigo/redis"
 	"encoding/json"
 	"errors"
+	"gin-todos/app"
 )
 
 const TokenKey = "user-token:"
@@ -15,18 +15,18 @@ type Service interface {
 	RevokeToken(token string) error
 }
 
-func NewService(cache *redis.Pool, userRepository user.Repository) Service {
+func NewService(cache app.Cache, userRepository user.Repository) Service {
 	return &ServiceImpl{cache, userRepository}
 }
 
 type ServiceImpl struct {
-	cache          *redis.Pool
+	cache          app.Cache
 	userRepository user.Repository
 }
 
 func (s *ServiceImpl) Authenticate(username string, password string) (string, error) {
 	if username == "" || password == "" {
-		return "", errors.New("get out")
+		return "", errors.New("parameters cannot be empty")
 	}
 
 	userModel, err := s.userRepository.FindByCredentials(username, password)
@@ -34,40 +34,42 @@ func (s *ServiceImpl) Authenticate(username string, password string) (string, er
 	if err != nil {
 		return "", err
 	} else if userModel == nil {
-		return "", errors.New("get out")
+		return "", errors.New("credentials do not exist")
 	}
 
 	token := generateToken(userModel)
 	key := TokenKey + token
 	marsh, _ := json.Marshal(userModel)
-	s.cache.Get().Do("SET", key, marsh)
+	cacheErr := s.cache.Set(key, string(marsh))
+
+	if cacheErr != nil {
+		return "", cacheErr
+	}
+
 	return token, nil
 }
 
 func (s *ServiceImpl) VerifyToken(token string) (*user.Model, error) {
 	key := TokenKey + token
-
-	reply, err := redis.String(s.cache.Get().Do("GET", key))
+	reply, err := s.cache.Get(key)
 
 	if err != nil {
 		return nil, err
 	}
 
-	u := new(user.Model)
+	userModel := new(user.Model)
+	jsonErr := json.Unmarshal([]byte(reply), userModel)
 
-	jerr := json.Unmarshal([]byte(reply), u)
-
-	if jerr != nil {
-		return nil, jerr
+	if jsonErr != nil {
+		return nil, jsonErr
 	}
 
-	return u, nil
+	return userModel, nil
 }
 
 func (s *ServiceImpl) RevokeToken(token string) error {
 	key := TokenKey + token
-	_, err := s.cache.Get().Do("DEL", key)
-	return err
+	return s.cache.Del(key)
 }
 
 func generateToken(u *user.Model) string {

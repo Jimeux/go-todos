@@ -3,16 +3,18 @@ services:
 
   redis:
     image: redis
+    restart: always
     ports:
-      - 6379:6379
+      - ${REDIS_PORT}:6379
     volumes:
       - ./db/tmp/redis:/data
     entrypoint: redis-server --appendonly yes
 
   postgres:
     image: postgres
+    restart: always
     ports:
-      - 5432:5432
+      - ${DB_PORT}:5432
     environment:
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=${DB_USER}
@@ -20,20 +22,3 @@ services:
     volumes:
       - ./db/tmp/db:/var/lib/postgresql/data
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
-
-  web:
-    build: .
-    ports:
-      - 8080:8080
-    links:
-      - postgres
-      - redis
-    depends_on:
-      - postgres
-      - redis
-    environment:
-      - REDIS_HOST=redis
-      - DB_HOST=postgres
-      - DB_USER=${DB_USER}
-      - DB_PASS=${DB_PASS}
-      - DB_NAME=${DB_NAME}

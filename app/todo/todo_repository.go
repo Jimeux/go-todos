@@ -12,12 +12,12 @@ type Repository interface {
 	Delete(id int64) error
 }
 
-type RepositoryImpl struct {
-	db *xorm.Engine
-}
-
 func NewRepository(db *xorm.Engine) Repository {
 	return &RepositoryImpl{db}
+}
+
+type RepositoryImpl struct {
+	db *xorm.Engine
 }
 
 func (r *RepositoryImpl) Create(userId int64, title string) (*Model, error) {

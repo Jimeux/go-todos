@@ -9,32 +9,36 @@ import (
 	"time"
 	"gin-todos/app/user"
 	"gin-todos/app/auth"
+	"gin-todos/app"
 )
 
-func initDb(env Env) *xorm.Engine {
-	db, err := xorm.NewEngine("postgres", env.DataSourceName)
+func initDb(env app.Env) *xorm.Engine {
+	db, err := xorm.NewEngine("postgres", env.DatabaseHost)
 
 	if err != nil {
 		panic("database could not be initialised")
 	}
 
-	db.ShowSQL(false)
+	db.ShowSQL(env.Debug)
 
 	return db
 }
 
-func initCache(env Env) *redis.Pool {
-	return &redis.Pool{
+func initCache(env app.Env) app.Cache {
+	client := &redis.Pool{
 		MaxIdle:     3,
 		IdleTimeout: 240 * time.Second,
 		Dial: func() (redis.Conn, error) {
 			return redis.Dial("tcp", env.RedisHost)
 		},
 	}
+	return app.NewCache(client)
 }
 
 func main() {
-	env := NewEnv()
+	debug := gin.Mode() == "debug"
+
+	env := app.NewEnv(debug)
 	db := initDb(env)
 	cache := initCache(env)
 
@@ -47,6 +51,7 @@ func main() {
 	authHandler := auth.NewHandler(userRepository, authService)
 
 	router := gin.Default()
+
 	router.LoadHTMLGlob(env.ViewDir + "/*")
 	router.Static("/assets", env.AssetDir)
 
