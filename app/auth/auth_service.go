@@ -5,7 +5,6 @@ import (
 	"github.com/garyburd/redigo/redis"
 	"encoding/json"
 	"errors"
-	"fmt"
 )
 
 const TokenKey = "user-token:"
