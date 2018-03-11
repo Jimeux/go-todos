@@ -17,6 +17,15 @@ class AuthService {
       });
   }
 
+  register(username, password) {
+    return $.post("/register", {username, password})
+      .fail(TodoService.handleError)
+      .done(token => {
+        this.setToken(token);
+        this.onAuthStateChanged();
+      });
+  }
+
   setToken(token) {
     localStorage.setItem("auth-token", token);
   }

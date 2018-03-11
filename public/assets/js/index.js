@@ -5,7 +5,7 @@ $(() => {
   const todoService = new TodoService(authService);
 
   const todoComponent = new TodoListComponent(todoService);
-  const loginComponent = new LoginComponent(authService);
+  const loginComponent = new AuthComponent(authService);
 
   authService.setOnAuthStateChanged(() => {
     todoComponent.toggle();

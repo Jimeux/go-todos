@@ -5,6 +5,7 @@ import (
 	"github.com/garyburd/redigo/redis"
 	"encoding/json"
 	"errors"
+	"fmt"
 )
 
 const TokenKey = "user-token:"
@@ -35,7 +36,6 @@ func (s *ServiceImpl) Authenticate(username string, password string) (string, er
 	} else if userModel == nil {
 		return "", errors.New("get out")
 	}
-
 
 	token := generateToken(userModel)
 	key := TokenKey + token

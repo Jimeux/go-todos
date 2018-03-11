@@ -5,26 +5,22 @@ import (
 	"github.com/garyburd/redigo/redis"
 	"github.com/gin-gonic/gin"
 	"github.com/go-xorm/xorm"
-	"runtime"
 	"gin-todos/app/todo"
 	"time"
-	"fmt"
 	"gin-todos/app/user"
 	"gin-todos/app/auth"
 )
 
-func initDb(env Env) (*xorm.Engine, error) {
-	const driverName = "postgres"
+func initDb(env Env) *xorm.Engine {
+	db, err := xorm.NewEngine("postgres", env.DataSourceName)
 
-	db, engineErr := xorm.NewEngine(driverName, env.DataSourceName)
-	db.ShowSQL(true)
-
-	if engineErr != nil {
-		fmt.Println("error initialising xorm engine: \n" + engineErr.Error())
-		return nil, engineErr
+	if err != nil {
+		panic("database could not be initialised")
 	}
 
-	return db, nil
+	db.ShowSQL(false)
+
+	return db
 }
 
 func initCache(env Env) *redis.Pool {
@@ -38,27 +34,9 @@ func initCache(env Env) *redis.Pool {
 }
 
 func main() {
-	runtime.GOMAXPROCS(2)
 	env := NewEnv()
-
-	var db *xorm.Engine
-
-	for i := 1; i <= 10; i++ {
-		dbTry, err := initDb(env)
-		if err == nil {
-			db = dbTry
-			break
-		} else {
-			time.Sleep(time.Duration(i) * time.Second)
-		}
-	}
-
+	db := initDb(env)
 	cache := initCache(env)
-
-	router := gin.Default()
-
-	router.LoadHTMLGlob(env.ViewDir + "/*")
-	router.Static("/assets", env.AssetDir)
 
 	todoRepository := todo.NewRepository(db)
 	userRepository := user.NewRepository(db)
@@ -66,7 +44,11 @@ func main() {
 	authService := auth.NewService(cache, userRepository)
 
 	todoHandler := todo.NewHandler(todoRepository)
-	authHandler := auth.NewHandler(authService)
+	authHandler := auth.NewHandler(userRepository, authService)
+
+	router := gin.Default()
+	router.LoadHTMLGlob(env.ViewDir + "/*")
+	router.Static("/assets", env.AssetDir)
 
 	initializeRoutes(router, &todoHandler, &authHandler, authService)
 

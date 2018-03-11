@@ -21,19 +21,19 @@ services:
       - ./db/tmp/db:/var/lib/postgresql/data
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
 
-#  web:
-#    build: .
-#    ports:
-#      - 8080:8080
-#    links:
-#      - postgres
-#      - redis
-#    depends_on:
-#      - postgres
-#      - redis
-#    environment:
-#      - REDIS_HOST=redis
-#      - DB_HOST=postgres
-#      - DB_USER=${DB_USER}
-#      - DB_PASS=${DB_PASS}
-#      - DB_NAME=${DB_NAME}
+  web:
+    build: .
+    ports:
+      - 8080:8080
+    links:
+      - postgres
+      - redis
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      - REDIS_HOST=redis
+      - DB_HOST=postgres
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_NAME=${DB_NAME}

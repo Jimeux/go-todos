@@ -20,7 +20,8 @@ class TodoListComponent {
       this.updateHideCompleteBtn();
       this.todoService.findAll(this.hideComplete, todos => {
         this.todoList.empty();
-        todos.forEach(todo => this.addTodoToDOM(todo, false, false))
+        if (todos !== null)
+          todos.forEach(todo => this.addTodoToDOM(todo, false, false))
       });
       this.container.show();
     }
@@ -35,7 +36,8 @@ class TodoListComponent {
       this.todoService.findAll(!this.hideComplete, todos => {
         this.toggleHideComplete();
         this.todoList.empty();
-        todos.forEach(todo => this.addTodoToDOM(todo, false, false));
+        if (todos !== null)
+          todos.forEach(todo => this.addTodoToDOM(todo, false, false));
       });
     });
   }
@@ -71,9 +73,8 @@ class TodoListComponent {
 
     this.todoService.create(title, todo => {
       this.addTodoToDOM(todo, true, true);
-      this.addBtn.prop("disabled", false);
       this.titleInput.val("");
-    });
+    }).always(() => this.addBtn.prop("disabled", false));
   }
 
   addTodoToDOM(todo, prepend, animate) {

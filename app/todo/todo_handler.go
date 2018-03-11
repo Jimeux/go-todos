@@ -38,9 +38,11 @@ func (h *Handler) List(context *gin.Context) {
 		todos, repoErr := h.repository.FindAll(getUser(context).Id, hideComplete)
 
 		if repoErr != nil {
-			fmt.Println(repoErr)
 			context.AbortWithStatus(http.StatusInternalServerError)
 		} else {
+			if todos == nil {
+				todos = &[]Model{}
+			}
 			context.JSON(http.StatusOK, *todos)
 		}
 	}

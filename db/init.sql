@@ -15,11 +15,3 @@ CREATE TABLE IF NOT EXISTS todos (
   complete BOOLEAN NOT NULL DEFAULT FALSE,
   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-
-
--- Seed data
-
-INSERT INTO users (username, password) VALUES ('jim', 'pass');
-
-INSERT INTO todos (user_id, title) VALUES (1, 'Create lots of bugs');
-INSERT INTO todos (user_id, title) VALUES (1, 'Fix lots of bugs');

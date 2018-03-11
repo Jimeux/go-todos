@@ -28,6 +28,8 @@ func initializeRoutes(
 
 	router.POST("/login", authHandler.Login)
 
+	router.POST("/register", authHandler.Register)
+
 	router.GET("/", todoHandler.Index)
 
 	router.GET("/todo", authMiddleware, todoHandler.List)
