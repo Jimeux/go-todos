@@ -24,6 +24,16 @@ func (h *Handler) Login(context *gin.Context) {
 	h.authenticate(context, username, password)
 }
 
+func (h *Handler) Logout(context *gin.Context) {
+	token := context.Request.Header.Get("X-Auth-Token")
+	err := h.authService.RevokeToken(token)
+	if err != nil {
+		context.AbortWithStatus(http.StatusInternalServerError)
+	} else {
+		context.Status(http.StatusOK)
+	}
+}
+
 func (h *Handler) Register(context *gin.Context) {
 	username := context.PostForm(UsernameParam)
 	password := context.PostForm(PasswordParam)

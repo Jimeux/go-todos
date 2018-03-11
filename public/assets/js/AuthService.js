@@ -26,6 +26,17 @@ class AuthService {
       });
   }
 
+  logout() {
+    const token = this.getToken();
+    this.setToken(null);
+
+    return $.ajax({
+      url: "/logout",
+      method: "GET",
+      headers: {"X-Auth-Token": token}
+    });
+  }
+
   setToken(token) {
     localStorage.setItem("auth-token", token);
   }

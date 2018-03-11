@@ -30,6 +30,8 @@ func initializeRoutes(
 
 	router.POST("/register", authHandler.Register)
 
+	router.GET("/logout", authHandler.Logout)
+
 	router.GET("/", todoHandler.Index)
 
 	router.GET("/todo", authMiddleware, todoHandler.List)

@@ -12,6 +12,15 @@ class AuthComponent {
     this.alert = $("#auth-alert");
     this.loginMode = true;
 
+    // TODO: Move to appropriate place
+    this.logoutBtn = $("#logout-btn");
+    this.logoutBtn.on("click", () => {
+      this.authService.logout()
+        .done(() => {
+          this.authService.onAuthStateChanged();
+        });
+    });
+
     this.attachListeners();
   }
 

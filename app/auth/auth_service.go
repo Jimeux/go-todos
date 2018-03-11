@@ -12,6 +12,7 @@ const TokenKey = "user-token:"
 type Service interface {
 	Authenticate(username string, password string) (string, error)
 	VerifyToken(token string) (*user.Model, error)
+	RevokeToken(token string) error
 }
 
 func NewService(cache *redis.Pool, userRepository user.Repository) Service {
@@ -61,6 +62,12 @@ func (s *ServiceImpl) VerifyToken(token string) (*user.Model, error) {
 	}
 
 	return u, nil
+}
+
+func (s *ServiceImpl) RevokeToken(token string) error {
+	key := TokenKey + token
+	_, err := s.cache.Get().Do("DEL", key)
+	return err
 }
 
 func generateToken(u *user.Model) string {

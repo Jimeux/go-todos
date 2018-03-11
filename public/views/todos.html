@@ -1,6 +1,9 @@
 <div class="container todo-list-component" style="display: none">
 
-  <h1>{{.title}}</h1>
+  <h1>
+  {{.title}} <button id="logout-btn" class="btn btn-outline-secondary btn-sm float-right">Log out</button>
+  </h1>
+
 
   <div class="input-group mb-3">
     <input id="add-input" type="text" class="form-control" placeholder="Enter a task">
