@@ -1,6 +1,0 @@
-
-$(() => {
-
-  new TodoListComponent(new TodoService());
-
-});

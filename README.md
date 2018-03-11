@@ -1,6 +1,6 @@
 # gin-todos
 
-A simple todo list webapp using [Gin](https://github.com/gin-gonic/gin), Postgres and jQuery.
+A simple todo list webapp using [Gin](https://github.com/gin-gonic/gin), Postgres, Redis and jQuery.
 
 # Setup
 

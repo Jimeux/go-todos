@@ -5,6 +5,13 @@ import (
 	"time"
 )
 
+type Repository interface {
+	Create(userId int64, title string) (*Model, error)
+	FindAll(userId int64, hideCompleted bool) (*[]Model, error)
+	SetComplete(userId int64, todoId int64, complete bool) (int64, error)
+	Delete(id int64) error
+}
+
 type RepositoryImpl struct {
 	db *xorm.Engine
 }
@@ -13,8 +20,9 @@ func NewRepository(db *xorm.Engine) Repository {
 	return &RepositoryImpl{db}
 }
 
-func (r *RepositoryImpl) Create(title string) (*Model, error) {
+func (r *RepositoryImpl) Create(userId int64, title string) (*Model, error) {
 	todo := Model{
+		UserId:   userId,
 		Title:    title,
 		Complete: false,
 		Created:  time.Now(),
@@ -23,14 +31,15 @@ func (r *RepositoryImpl) Create(title string) (*Model, error) {
 	return &todo, err
 }
 
-func (r *RepositoryImpl) SetComplete(id int64, complete bool) (int64, error) {
+func (r *RepositoryImpl) SetComplete(userId int64, todoId int64, complete bool) (int64, error) {
 	return r.db.
-		Id(id).
+		Id(todoId).
+		Where("user_id = ?", userId).
 		Cols("complete").
 		Update(&Model{Complete: complete})
 }
 
-func (r *RepositoryImpl) FindAll(hideComplete bool) (*[]Model, error) {
+func (r *RepositoryImpl) FindAll(userId int64, hideComplete bool) (*[]Model, error) {
 	var todos []Model
 	var query string
 
@@ -39,7 +48,8 @@ func (r *RepositoryImpl) FindAll(hideComplete bool) (*[]Model, error) {
 	}
 
 	err := r.db.
-		Where(query).
+		Where("user_id = ?", userId).
+		And(query).
 		Desc("created").
 		Find(&todos)
 

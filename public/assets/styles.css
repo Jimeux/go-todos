@@ -1,3 +1,7 @@
+body {
+    background-color: #f8f8f8;
+}
+
 .todo-list-component {
     max-width: 600px;
     margin: 25px auto;
@@ -5,4 +9,9 @@
 
 .complete {
     text-decoration: line-through;
+}
+
+.login-component {
+    max-width: 500px;
+    margin: 50px auto;
 }

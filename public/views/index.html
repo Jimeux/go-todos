@@ -8,28 +8,13 @@
         href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
         crossorigin="anonymous">
-  <link rel="stylesheet" href="assets/styles.css"/>
+  <link rel="stylesheet" type="text/css" href="assets/styles.css"/>
 </head>
 <body>
 
-<div class="container todo-list-component">
+{{ template "todos.html" .}}
 
-  <h1>{{.title}}</h1>
-
-  <div class="input-group mb-3">
-    <input id="add-input" type="text" class="form-control" placeholder="Enter a task">
-    <div class="input-group-append">
-      <button id="add-btn" class="btn btn-primary" type="button">Add</button>
-    </div>
-  </div>
-
-  <div class="input-group mb-3">
-    <button id="hide-complete-btn" class="btn btn-primary btn-sm"></button>
-  </div>
-
-  <ul class="list-group"></ul>
-
-</div>
+{{ template "login.html" .}}
 
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"
         integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
@@ -41,9 +26,11 @@
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
 
-<script type="text/javascript" src="assets/TodoService.js"></script>
-<script type="text/javascript" src="assets/TodoComponent.js"></script>
-<script type="text/javascript" src="assets/index.js"></script>
+<script type="text/javascript" src="assets/js/AuthService.js"></script>
+<script type="text/javascript" src="assets/js/TodoService.js"></script>
+<script type="text/javascript" src="assets/js/TodoComponent.js"></script>
+<script type="text/javascript" src="assets/js/LoginComponent.js"></script>
+<script type="text/javascript" src="assets/js/index.js"></script>
 
 </body>
 </html>

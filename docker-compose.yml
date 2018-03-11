@@ -1,25 +1,39 @@
 version: '3'
 services:
+
+  redis:
+    image: redis
+    ports:
+      - 6379:6379
+    volumes:
+      - ./db/tmp/redis:/data
+    entrypoint: redis-server --appendonly yes
+
   postgres:
     image: postgres
     ports:
-      - 127.0.0.1:5433:5432
+      - 5432:5432
     environment:
-      - POSTGRES_USER=default
-      - POSTGRES_PASSWORD=default
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
     volumes:
       - ./db/tmp/db:/var/lib/postgresql/data
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
-  web:
-    build: .
-    ports:
-      - "8080:8080"
-    links:
-      - postgres
-    depends_on:
-      - postgres
-    environment:
-      - DB_HOST=postgres
-      - DB_USER=default
-      - DB_PASS=default
-      - DB_NAME=gin_todos
+
+#  web:
+#    build: .
+#    ports:
+#      - 8080:8080
+#    links:
+#      - postgres
+#      - redis
+#    depends_on:
+#      - postgres
+#      - redis
+#    environment:
+#      - REDIS_HOST=redis
+#      - DB_HOST=postgres
+#      - DB_USER=${DB_USER}
+#      - DB_PASS=${DB_PASS}
+#      - DB_NAME=${DB_NAME}

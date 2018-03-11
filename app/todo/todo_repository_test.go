@@ -2,7 +2,7 @@ package todo
 
 import (
 	"testing"
-	"gin-todos/common"
+	"gin-todos/app/common"
 )
 
 var (

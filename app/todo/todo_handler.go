@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 	"fmt"
+	"gin-todos/app/user"
 )
 
 const IdParam = "id"
@@ -29,18 +30,18 @@ func (h *Handler) Index(context *gin.Context) {
 }
 
 func (h *Handler) List(context *gin.Context) {
-	hideComplete, parseErr := parseBool(context, HideCompleteParam,false)
+	hideComplete, parseErr := parseBool(context, HideCompleteParam, false)
 
 	if parseErr != nil {
 		context.AbortWithStatus(http.StatusNotAcceptable)
 	} else {
-		todos, repoErr := h.repository.FindAll(hideComplete)
+		todos, repoErr := h.repository.FindAll(getUser(context).Id, hideComplete)
 
 		if repoErr != nil {
 			fmt.Println(repoErr)
 			context.AbortWithStatus(http.StatusInternalServerError)
 		} else {
-			context.JSON(http.StatusOK, todos)
+			context.JSON(http.StatusOK, *todos)
 		}
 	}
 }
@@ -49,15 +50,13 @@ func (h *Handler) Complete(context *gin.Context) {
 	id, paramErr := strconv.Atoi(context.Param(IdParam))
 	completed, queryErr := parseBool(context, CompleteParam, false)
 
-	fmt.Println(completed, queryErr)
-
 	if paramErr != nil || queryErr != nil {
 		context.AbortWithStatus(http.StatusNotAcceptable)
 	} else {
-		affected, err := h.repository.SetComplete(int64(id), completed)
+		affected, err := h.repository.SetComplete(getUser(context).Id, int64(id), completed)
 
 		if err != nil {
-			context.JSON(http.StatusInternalServerError, err.Error())
+			context.AbortWithStatus(http.StatusInternalServerError)
 		} else if affected == 0 {
 			context.AbortWithStatus(http.StatusNotFound)
 		} else {
@@ -72,7 +71,7 @@ func (h *Handler) Create(context *gin.Context) {
 	if title == "" {
 		context.AbortWithStatus(http.StatusNotAcceptable)
 	} else {
-		todo, err := h.repository.Create(title)
+		todo, err := h.repository.Create(getUser(context).Id, title)
 
 		if err != nil {
 			context.AbortWithStatus(http.StatusInternalServerError)
@@ -82,11 +81,12 @@ func (h *Handler) Create(context *gin.Context) {
 	}
 }
 
+func getUser(context *gin.Context) *user.Model {
+	return context.MustGet("user").(*user.Model)
+}
+
 func parseBool(context *gin.Context, key string, defaultValue bool) (bool, error) {
 	boolString := strconv.FormatBool(defaultValue)
 	value := context.DefaultQuery(key, boolString)
-
-	fmt.Println(key)
-
 	return strconv.ParseBool(value)
 }

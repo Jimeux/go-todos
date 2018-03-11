@@ -1,28 +1,37 @@
-
 class TodoListComponent {
 
   constructor(todoService) {
     this.todoService = todoService;
+
+    this.container = $(".todo-list-component");
     this.addBtn = $("#add-btn");
     this.titleInput = $("#add-input");
     this.todoList = $(".list-group");
     this.hideCompleteBtn = $("#hide-complete-btn");
     this.hideComplete = localStorage.getItem("hideComplete") === "true";
 
-    this.updateHideCompleteBtn();
     this.attachListeners();
+  }
 
-    this.todoService.findAll(this.hideComplete, todos => {
-      todos.forEach(todo => this.addTodoToDOM(todo, false, false))
-    });
+  toggle() {
+    if (this.container.is(":visible")) {
+      this.container.hide();
+    } else {
+      this.updateHideCompleteBtn();
+      this.todoService.findAll(this.hideComplete, todos => {
+        this.todoList.empty();
+        todos.forEach(todo => this.addTodoToDOM(todo, false, false))
+      });
+      this.container.show();
+    }
   }
 
   attachListeners() {
-    this.addBtn.click(() => this.createTodo());
+    this.addBtn.on("click", () => this.createTodo());
     this.todoList.on("click", ".form-check-input", event =>
       this.completeTodo($(event.target))
     );
-    this.hideCompleteBtn.click(() => {
+    this.hideCompleteBtn.on("click", () => {
       this.todoService.findAll(!this.hideComplete, todos => {
         this.toggleHideComplete();
         this.todoList.empty();

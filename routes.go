@@ -1,18 +1,39 @@
 package main
 
 import (
-	"gin-todos/todo"
+	"gin-todos/app/todo"
 	"github.com/gin-gonic/gin"
+	"net/http"
+	"gin-todos/app/auth"
 )
 
-func initializeRoutes(router *gin.Engine, handler* todo.Handler) {
+func initializeRoutes(
+	router *gin.Engine,
+	todoHandler *todo.Handler,
+	authHandler *auth.Handler,
+	authService auth.Service,
+) {
 
-	router.GET("/", handler.Index)
+	authMiddleware := func(c *gin.Context) {
+		token := c.Request.Header.Get("X-Auth-Token")
+		userModel, err := authService.VerifyToken(token)
 
-	router.GET("/todo", handler.List)
+		if token == "" || err != nil {
+			c.AbortWithStatus(http.StatusForbidden)
+		} else {
+			c.Set("user", userModel)
+			c.Next()
+		}
+	}
 
-	router.GET("/todo/:id/complete", handler.Complete)
+	router.POST("/login", authHandler.Login)
 
-	router.POST("/todo", handler.Create)
+	router.GET("/", todoHandler.Index)
+
+	router.GET("/todo", authMiddleware, todoHandler.List)
+
+	router.GET("/todo/:id/complete", authMiddleware, todoHandler.Complete)
+
+	router.POST("/todo", authMiddleware, todoHandler.Create)
 
 }
