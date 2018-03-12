@@ -15,10 +15,8 @@ class AuthComponent {
     // TODO: Move to appropriate place
     this.logoutBtn = $("#logout-btn");
     this.logoutBtn.on("click", () => {
-      this.authService.logout()
-        .done(() => {
-          this.authService.onAuthStateChanged();
-        });
+      this.authService.onAuthStateChanged();
+      this.authService.logout();
     });
 
     this.attachListeners();

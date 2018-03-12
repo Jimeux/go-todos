@@ -29,6 +29,11 @@ func (r *RepositoryImpl) FindByCredentials(username string, password string) (*M
 		Username: username,
 		Password: password,
 	}
-	_, err := r.db.Get(&user)
+	has, err := r.db.Get(&user)
+
+	if !has {
+		return nil, err
+	}
+
 	return &user, err
 }
