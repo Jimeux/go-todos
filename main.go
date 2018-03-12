@@ -1,6 +1,9 @@
 package main
 
 import (
+
+	"github.com/fluent/fluent-logger-golang/fluent"
+
 	_ "github.com/lib/pq"
 	"github.com/garyburd/redigo/redis"
 	"github.com/gin-gonic/gin"
@@ -10,6 +13,7 @@ import (
 	"gin-todos/app/user"
 	"gin-todos/app/auth"
 	"gin-todos/app"
+	"fmt"
 )
 
 func initDb(env app.Env) *xorm.Engine {
@@ -59,6 +63,33 @@ func main() {
 
 	defer cache.Close()
 	defer db.Close()
+
+
+
+
+	logger, err := fluent.New(fluent.Config{
+		FluentPort: 24223,
+		FluentHost: "127.0.0.1",
+	})
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer logger.Close()
+
+	// TODO: Create a logger interface
+	for i := 0; i < 1; i++ {
+		tag := "track.user.sign_up"
+		var data = map[string]string{
+			"time": time.Now().String(),
+			"id": "1",
+		}
+
+		// ログを転送する
+		err = logger.Post(tag, data)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
 
 	router.Run()
 }

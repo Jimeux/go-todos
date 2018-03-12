@@ -22,3 +22,13 @@ services:
     volumes:
       - ./db/tmp/db:/var/lib/postgresql/data
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  fluentd:
+    image: fluent/fluentd:v0.12-onbuild
+    restart: always
+    ports:
+      - ${FLUENTD_PORT}:24224
+      - ${FLUENTD_PORT}:24224/udp
+    volumes:
+      - ./fluentd/conf:/fluentd/etc
+      - ./db/tmp/fluentd:/fluentd/log

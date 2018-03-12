@@ -12,6 +12,7 @@ RUN go get github.com/lib/pq
 RUN go get github.com/gin-gonic/gin
 RUN go get github.com/go-xorm/xorm
 RUN go get github.com/garyburd/redigo/redis
+RUN go get github.com/fluent/fluent-logger-golang/fluent
 
 # Copy the local package files to the container's workspace.
 ADD . /go/src/$APP_NAME/
