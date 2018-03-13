@@ -1,6 +1,8 @@
 package app
 
-import "github.com/garyburd/redigo/redis"
+import (
+	"github.com/garyburd/redigo/redis"
+)
 
 type Cache interface {
 	Get(key string) (string, error)

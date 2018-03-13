@@ -11,6 +11,8 @@ type Env struct {
 	DatabaseHost string
 	ViewDir      string
 	AssetDir     string
+	FluentdHost  string
+	FluentdPort  string
 }
 
 func NewEnv(debug bool) Env {
@@ -18,12 +20,16 @@ func NewEnv(debug bool) Env {
 	redisHost := redisUrl()
 	viewDir := os.Getenv("VIEW_DIR")
 	assetDir := os.Getenv("ASSET_DIR")
+	fluentdHost := os.Getenv("FLUENTD_HOST")
+	fluentdPort := os.Getenv("FLUENTD_PORT")
 
 	if debug {
-		databaseHost = "postgresql://default:default@127.0.0.1/gin_todos?sslmode=disable"
+		databaseHost = "postgresql://default:default@127.0.0.1/todos?sslmode=disable"
 		redisHost = "127.0.0.1:6379"
 		viewDir = "public/views"
 		assetDir = "public/assets"
+		fluentdHost = "127.0.0.1"
+		fluentdPort = "24224"
 	}
 
 	return Env{
@@ -32,6 +38,8 @@ func NewEnv(debug bool) Env {
 		databaseHost,
 		viewDir,
 		assetDir,
+		fluentdHost,
+		fluentdPort,
 	}
 }
 

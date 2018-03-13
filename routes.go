@@ -1,10 +1,10 @@
 package main
 
 import (
-	"gin-todos/app/todo"
 	"github.com/gin-gonic/gin"
+	"github.com/Jimeux/go-todos/app/todo"
+	"github.com/Jimeux/go-todos/app/auth"
 	"net/http"
-	"gin-todos/app/auth"
 )
 
 func initializeRoutes(

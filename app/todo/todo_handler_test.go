@@ -1,14 +1,14 @@
 package todo
 
 import (
-	"testing"
-	"gin-todos/common"
+	"github.com/stretchr/testify/assert"
+	"github.com/Jimeux/go-todos/app/common"
 	"net/http/httptest"
 	"io/ioutil"
 	"net/http"
 	"encoding/json"
+	"testing"
 	"time"
-	"github.com/stretchr/testify/assert"
 	"errors"
 )
 
@@ -22,7 +22,7 @@ func TestIndex(t *testing.T) {
 	router.ServeHTTP(recorder, request)
 	body, _ := ioutil.ReadAll(recorder.Body)
 
-	assert.Contains(t, string(body),"<title>Todo</title>")
+	assert.Contains(t, string(body), "<title>Todo</title>")
 	assert.Equal(t, http.StatusOK, recorder.Code)
 }
 
@@ -87,7 +87,6 @@ func TestListRepoError(t *testing.T) {
 
 	assert.Equal(t, http.StatusInternalServerError, recorder.Code)
 }
-
 
 type TestRepository struct {
 	Todo         *Model

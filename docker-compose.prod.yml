@@ -9,6 +9,7 @@ services:
     links:
       - postgres
       - redis
+      - fluentd
     depends_on:
       - postgres
       - redis

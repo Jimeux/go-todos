@@ -1,8 +1,8 @@
 package todo
 
 import (
+	"github.com/Jimeux/go-todos/app/common"
 	"testing"
-	"gin-todos/app/common"
 )
 
 var (

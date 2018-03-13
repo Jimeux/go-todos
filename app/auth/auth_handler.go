@@ -2,8 +2,8 @@ package auth
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/Jimeux/go-todos/app/user"
 	"net/http"
-	"gin-todos/app/user"
 )
 
 const (
@@ -17,8 +17,8 @@ type Handler struct {
 	authService    Service
 }
 
-func NewHandler(userRepository user.Repository, authService Service) Handler {
-	return Handler{userRepository, authService}
+func NewHandler(userRepository user.Repository, authService Service) *Handler {
+	return &Handler{userRepository, authService}
 }
 
 func (h *Handler) Login(context *gin.Context) {

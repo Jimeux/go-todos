@@ -1,10 +1,10 @@
 package auth
 
 import (
-	"gin-todos/app/user"
+	"github.com/Jimeux/go-todos/app/user"
+	"github.com/Jimeux/go-todos/app"
 	"encoding/json"
 	"errors"
-	"gin-todos/app"
 )
 
 const TokenKey = "user-token:"

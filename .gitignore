@@ -13,6 +13,12 @@
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
+# Data
+data/fluentd/log
+data/redis/data
+data/postgres/postgresql
+
+# Other
 tmp
 .idea
 *.iml

@@ -2,9 +2,10 @@ package todo
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/Jimeux/go-todos/app/user"
+	"github.com/Jimeux/go-todos/app"
 	"net/http"
 	"strconv"
-	"gin-todos/app/user"
 )
 
 const (
@@ -15,11 +16,12 @@ const (
 )
 
 type Handler struct {
+	logger     app.Logger
 	repository Repository
 }
 
-func NewHandler(repository Repository) Handler {
-	return Handler{repository}
+func NewHandler(logger app.Logger, repository Repository) *Handler {
+	return &Handler{logger, repository}
 }
 
 func (h *Handler) Index(context *gin.Context) {
@@ -63,6 +65,9 @@ func (h *Handler) Complete(context *gin.Context) {
 		} else if affected == 0 {
 			context.AbortWithStatus(http.StatusNotFound)
 		} else {
+			h.logger.Forward("track.todo.completed", map[string]interface{}{
+				"completed": completed,
+			})
 			context.JSON(http.StatusOK, "Updated")
 		}
 	}
