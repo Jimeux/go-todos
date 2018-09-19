@@ -1,8 +1,8 @@
 package auth
 
 import (
-	"github.com/gin-gonic/gin"
 	"github.com/Jimeux/go-todos/app/user"
+	"github.com/gin-gonic/gin"
 	"net/http"
 )
 

@@ -1,9 +1,9 @@
 package todo
 
 import (
-	"github.com/gin-gonic/gin"
+	"github.com/Jimeux/go-todos/app/common"
 	"github.com/Jimeux/go-todos/app/user"
-	"github.com/Jimeux/go-todos/app"
+	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 )
@@ -16,11 +16,11 @@ const (
 )
 
 type Handler struct {
-	logger     app.Logger
+	logger     common.Logger
 	repository Repository
 }
 
-func NewHandler(logger app.Logger, repository Repository) *Handler {
+func NewHandler(logger common.Logger, repository Repository) *Handler {
 	return &Handler{logger, repository}
 }
 

@@ -1,10 +1,10 @@
 package auth
 
 import (
-	"github.com/Jimeux/go-todos/app/user"
-	"github.com/Jimeux/go-todos/app"
 	"encoding/json"
 	"errors"
+	"github.com/Jimeux/go-todos/app/common"
+	"github.com/Jimeux/go-todos/app/user"
 )
 
 const TokenKey = "user-token:"
@@ -15,12 +15,12 @@ type Service interface {
 	RevokeToken(token string) error
 }
 
-func NewService(cache app.Cache, userRepository user.Repository) Service {
+func NewService(cache common.Cache, userRepository user.Repository) Service {
 	return &ServiceImpl{cache, userRepository}
 }
 
 type ServiceImpl struct {
-	cache          app.Cache
+	cache          common.Cache
 	userRepository user.Repository
 }
 

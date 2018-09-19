@@ -1,20 +1,20 @@
 package main
 
 import (
-	_ "github.com/lib/pq"
-	"github.com/fluent/fluent-logger-golang/fluent"
-	"github.com/garyburd/redigo/redis"
-	"github.com/gin-gonic/gin"
-	"github.com/go-xorm/xorm"
-	"github.com/Jimeux/go-todos/app/user"
-	"github.com/Jimeux/go-todos/app/auth"
 	"github.com/Jimeux/go-todos/app"
+	"github.com/Jimeux/go-todos/app/auth"
+	"github.com/Jimeux/go-todos/app/common"
 	"github.com/Jimeux/go-todos/app/todo"
-	"time"
+	"github.com/Jimeux/go-todos/app/user"
+	"github.com/fluent/fluent-logger-golang/fluent"
+	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis"
+	"github.com/go-xorm/xorm"
+	_ "github.com/lib/pq"
 	"strconv"
 )
 
-func initDb(env app.Env) *xorm.Engine {
+func initDb(env common.Env) *xorm.Engine {
 	db, err := xorm.NewEngine("postgres", env.DatabaseHost)
 	if err != nil {
 		panic("database could not be initialised: " + err.Error())
@@ -24,18 +24,16 @@ func initDb(env app.Env) *xorm.Engine {
 	return db
 }
 
-func initCache(env app.Env) app.Cache {
-	client := &redis.Pool{
-		MaxIdle:     3,
-		IdleTimeout: 240 * time.Second,
-		Dial: func() (redis.Conn, error) {
-			return redis.Dial("tcp", env.RedisHost)
-		},
-	}
-	return app.NewCache(client)
+func initCache(env common.Env) common.Cache {
+	client := redis.NewClient(&redis.Options{
+		Addr:     env.RedisHost,
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
+	return common.NewCache(client)
 }
 
-func initLogger(env app.Env) app.Logger {
+func initLogger(env common.Env) common.Logger {
 	fluentdPort, _ := strconv.Atoi(env.FluentdPort)
 	logger, err := fluent.New(fluent.Config{
 		FluentPort: fluentdPort,
@@ -45,13 +43,13 @@ func initLogger(env app.Env) app.Logger {
 	if err != nil {
 		panic("Fluentd logger could not be initialised: " + err.Error())
 	}
-	return app.NewLogger(logger)
+	return common.NewLogger(logger)
 }
 
 func main() {
 	debug := gin.Mode() == "debug"
 
-	env := app.NewEnv(debug)
+	env := common.NewEnv(debug)
 	db := initDb(env)
 	cache := initCache(env)
 	logger := initLogger(env)
@@ -69,7 +67,7 @@ func main() {
 	router.LoadHTMLGlob(env.ViewDir + "/*")
 	router.Static("/assets", env.AssetDir)
 
-	initializeRoutes(router, todoHandler, authHandler, authService)
+	app.InitializeRoutes(router, todoHandler, authHandler, authService)
 
 	defer cache.Close()
 	defer db.Close()
