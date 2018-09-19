@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	db = common.InitTestDb()
+	db         = common.InitTestDb()
 	repository = &RepositoryImpl{db}
 )
 
@@ -15,7 +15,7 @@ func TestFindAll(t *testing.T) {
 	db.Sync2(new(Model))
 
 	var inserts = make([]Model, 5)
-	for i := 1; i <= 5; i++  {
+	for i := 1; i <= 5; i++ {
 		inserted, _ := repository.Create("test" + string(i))
 		inserts = append(inserts, *inserted)
 	}
@@ -31,10 +31,10 @@ func TestFindAll(t *testing.T) {
 		return false
 	}
 
-	check(t, len(*articles) == 5,"length was not 5 but", len(*articles))
+	check(t, len(*articles) == 5, "length was not 5 but", len(*articles))
 
 	for _, article := range *articles {
-		check(t, contains(&article),"Mismatch between local and DB.")
+		check(t, contains(&article), "Mismatch between local and DB.")
 	}
 }
 

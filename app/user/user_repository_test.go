@@ -1,11 +1,11 @@
 package user
 
 import (
-	"testing"
 	"gin-todos/app/common"
+	"testing"
 )
 
 var (
-	db = common.InitTestDb()
+	db         = common.InitTestDb()
 	repository = &RepositoryImpl{db}
 )

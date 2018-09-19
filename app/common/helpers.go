@@ -1,12 +1,12 @@
 package common
 
 import (
-	_ "github.com/lib/pq"
-	"net/http/httptest"
 	"github.com/gin-gonic/gin"
-	"testing"
-	"net/http"
 	"github.com/go-xorm/xorm"
+	_ "github.com/lib/pq"
+	"net/http"
+	"net/http/httptest"
+	"testing"
 )
 
 func GetRouter(withTemplates bool) *gin.Engine {

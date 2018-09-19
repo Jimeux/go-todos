@@ -9,15 +9,10 @@ services:
     links:
       - postgres
       - redis
-      - fluentd
     depends_on:
       - postgres
       - redis
-      - fluentd
     environment:
-      - FLUENTD_HOST=fluentd
-      - FLUENTD_PORT=${FLUENTD_PORT}
-
       - REDIS_HOST=redis
       - REDIS_PORT=${REDIS_PORT}
 

@@ -1,9 +1,9 @@
 package common
 
 import (
+	"github.com/gin-gonic/gin"
 	"os"
 	"testing"
-	"github.com/gin-gonic/gin"
 )
 
 func TestMain(m *testing.M) {

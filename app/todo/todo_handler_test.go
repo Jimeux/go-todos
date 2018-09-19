@@ -1,15 +1,15 @@
 package todo
 
 import (
-	"github.com/stretchr/testify/assert"
+	"encoding/json"
+	"errors"
 	"github.com/Jimeux/go-todos/app/common"
-	"net/http/httptest"
+	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"net/http"
-	"encoding/json"
+	"net/http/httptest"
 	"testing"
 	"time"
-	"errors"
 )
 
 func TestIndex(t *testing.T) {
